@@ -141,3 +141,4 @@ The frontend already has Tailwind configured. Components use utility classes to 
 
 You can now open VS Code, run both servers, and show everything in your presentation:
 auth, CRUD, Prisma, charts, weather widget, etc.
+# Game-Tracker
