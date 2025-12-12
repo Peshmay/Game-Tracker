@@ -8,8 +8,36 @@ import TimerPage from "./pages/TimerPage";
 import StatisticsPage from "./pages/StatisticsPage";
 import ProfilePage from "./pages/ProfilePage";
 import useAuth from "./hooks/useAuth";
+import AdminMenuPage from "./pages/AdminMenuPage";
+import { useEffect, useRef, useState } from "react";
+import { signOut } from "firebase/auth";
+import { auth } from "./firebase";
+
 
 function Shell({ children }: { children: React.ReactNode }) {
+  const isAdmin = localStorage.getItem("isAdmin") === "true";
+const adminEmail = localStorage.getItem("adminEmail") || "admin";
+
+const [open, setOpen] = useState(false);
+const menuRef = useRef<HTMLDivElement | null>(null);
+
+useEffect(() => {
+  function onDocClick(e: MouseEvent) {
+    if (!menuRef.current) return;
+    if (!menuRef.current.contains(e.target as Node)) setOpen(false);
+  }
+  document.addEventListener("mousedown", onDocClick);
+  return () => document.removeEventListener("mousedown", onDocClick);
+}, []);
+
+async function handleAdminLogout() {
+  await signOut(auth);
+  localStorage.removeItem("isAdmin");
+  localStorage.removeItem("adminEmail");
+  setOpen(false);
+  window.location.href = "/login";
+}
+
   const user = useAuth();
   return (
     <div className="min-h-screen flex flex-col bg-slate-900 text-slate-50">
@@ -24,13 +52,51 @@ function Shell({ children }: { children: React.ReactNode }) {
           <Link to="/statistics" className="hover:text-pink-400">
             Statistics
           </Link>
-          <Link to="/users" className="hover:text-pink-400">
+          <Link to="/admin" className="hover:text-pink-400">
             Admin
           </Link>
         </nav>
-        <div className="text-xs text-slate-300">
-          {user ? `Logged in as ${user.email}` : "Not logged in"}
+        <div className="relative" ref={menuRef}>
+  {isAdmin ? (
+    <>
+      <button
+  onClick={() => setOpen((v) => !v)}
+  className="w-10 h-10 rounded-full overflow-hidden border border-slate-700 hover:border-cyan-400 transition"
+  title="Admin menu"
+>
+  <img
+    src="/avatars/fox.png"
+    alt="Admin avatar"
+    className="w-full h-full object-cover"
+  />
+</button>
+
+
+      {open && (
+        <div className="absolute right-0 mt-3 w-56 rounded-xl bg-slate-950 border border-slate-800 shadow-xl overflow-hidden">
+          <div className="px-4 py-3 border-b border-slate-800">
+            <div className="text-xs text-slate-400">Signed in as</div>
+            <div className="text-sm font-semibold text-slate-100 truncate">
+              {adminEmail}
+            </div>
+          </div>
+
+          <button
+            onClick={handleAdminLogout}
+            className="w-full text-left px-4 py-3 text-sm text-red-300 hover:bg-red-500/10 hover:text-red-200 transition"
+          >
+            Logout
+          </button>
         </div>
+      )}
+    </>
+  ) : (
+    <div className="text-xs text-slate-300">
+      {user ? `Logged in as ${user.email}` : "Not logged in"}
+    </div>
+  )}
+</div>
+
       </header>
       <main className="flex-1">{children}</main>
     </div>
@@ -43,6 +109,24 @@ export default function App() {
       <Route path="/" element={<Navigate to="/login" replace />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/admin-login" element={<AdminLoginPage />} />
+
+<Route
+  path="/admin"
+  element={
+    <Shell>
+      <AdminMenuPage />
+    </Shell>
+  }
+/>
+
+<Route
+  path="/register-user"
+  element={
+    <Shell>
+      <ProfilePage />
+    </Shell>
+  }
+/>
 
       <Route
         path="/play"

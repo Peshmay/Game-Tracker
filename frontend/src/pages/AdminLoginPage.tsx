@@ -1,83 +1,146 @@
-import { useState } from "react";
+// src/pages/AdminLoginPage.tsx
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase";
+import AppShell from "../components/layout/AppShell";
 
-const ADMIN_EMAILS = ["admin@example.com"];
-
-export default function AdminLoginPage() {
+const AdminLoginPage: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-
   const navigate = useNavigate();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const dateLabel = new Date().toLocaleDateString(undefined, {
+    weekday: "long",
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
 
     try {
       setLoading(true);
       const cred = await signInWithEmailAndPassword(auth, email, password);
-      const loggedEmail = cred.user.email || "";
-      if (!ADMIN_EMAILS.includes(loggedEmail)) {
-        setError("You are not registered as an admin.");
-        return;
+
+      // simple admin check – you can later make this role-based from backend
+      const isAdminEmail = email.endsWith("@admin.com");
+      if (!isAdminEmail) {
+        throw new Error("You are not authorized as admin.");
       }
-      navigate("/users", { replace: true });
+
+      localStorage.setItem("isAdmin", "true");
+      localStorage.setItem("adminEmail", cred.user.email || email);
+
+      navigate("/admin", { replace: true }); // go to admin menu
     } catch (err: any) {
       console.error(err);
-      setError("Admin login failed.");
+      setError(err?.message || "Could not sign in as admin.");
     } finally {
       setLoading(false);
     }
-  };
+  }
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-slate-900">
-      <div className="w-[360px] rounded-xl shadow-2xl bg-slate-800 text-white p-6">
-        <h2 className="text-[22px] font-bold text-center mb-4">
-          Admin Login
-        </h2>
-        <form onSubmit={handleSubmit} className="grid gap-3">
+    <AppShell>
+      <div className="min-h-screen flex flex-col">
+        {/* Top bar: date + fake weather + search */}
+        <header className="flex items-center justify-between px-10 pt-6 pb-4">
           <div>
-            <label className="block text-xs font-semibold text-gray-300 mb-1">
-              Admin email
-            </label>
-            <input
-              required
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-md border border-slate-600 bg-slate-900 text-gray-100 p-2 focus:outline-none focus:ring-2 focus:ring-pink-500"
-            />
+            <div className="text-sm font-semibold text-slate-100">
+              {dateLabel}
+            </div>
+            <div className="flex items-center gap-2 text-xs text-slate-300 mt-1">
+              <span>🌤</span>
+              <span>10 °C</span>
+            </div>
           </div>
-          <div>
-            <label className="block text-xs font-semibold text-gray-300 mb-1">
-              Password
-            </label>
+
+          <div className="relative">
             <input
-              required
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded-md border border-slate-600 bg-slate-900 text-gray-100 p-2 focus:outline-none focus:ring-2 focus:ring-pink-500"
+              type="text"
+              placeholder="Search"
+              className="w-64 rounded-full bg-[#07111d] border border-slate-700 px-4 py-2 text-sm text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-400"
             />
+            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs">
+              🔍
+            </span>
           </div>
-          <button
-            type="submit"
-            disabled={loading}
-            className="mt-2 w-full rounded-md py-2 font-semibold bg-pink-600 hover:bg-pink-500 transition disabled:opacity-60"
-          >
-            {loading ? "LOGGING IN..." : "LOGIN AS ADMIN"}
-          </button>
-        </form>
-        {error && (
-          <p className="mt-3 text-center text-sm text-red-400">{error}</p>
-        )}
+        </header>
+
+        {/* Center card – same colors as LoginPage */}
+        <div className="flex-1 flex items-center justify-center pb-10">
+          <div className="w-full max-w-3xl bg-[#102437] rounded-2xl shadow-2xl px-12 py-10">
+            <h1 className="text-2xl font-bold mb-2">Admin Login</h1>
+            <p className="text-sm text-slate-300 mb-8">
+              Log in to manage users and game sessions.
+            </p>
+
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Email */}
+              <div>
+                <label className="block text-sm font-semibold text-slate-200 mb-2">
+                  E-mail <span className="text-cyan-400">*</span>
+                </label>
+                <input
+                  required
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="admin@example.com"
+                  className="w-full rounded-sm bg-[#e7f0ff] text-slate-900 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-400"
+                />
+              </div>
+
+              {/* Password */}
+              <div>
+                <label className="block text-sm font-semibold text-slate-200 mb-2">
+                  Password <span className="text-cyan-400">*</span>
+                </label>
+                <input
+                  required
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full rounded-sm bg-[#e7f0ff] text-slate-900 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-400"
+                />
+              </div>
+
+              {error && (
+                <p className="text-sm text-red-400 bg-red-900/20 border border-red-700 rounded px-3 py-2">
+                  {error}
+                </p>
+              )}
+
+              {/* Buttons row */}
+              <div className="flex justify-between items-center pt-4">
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="px-8 py-2 rounded-sm bg-[#00c4ff] text-slate-900 font-semibold shadow-md hover:bg-[#03b1e3] transition disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  {loading ? "LOGGING IN..." : "Login"}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => navigate("/login")}
+                  className="text-sm text-slate-300 hover:text-cyan-300 underline-offset-4 hover:underline"
+                >
+                  ← Back to user login
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       </div>
-    </div>
+    </AppShell>
   );
-}
+};
+
+export default AdminLoginPage;
