@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate, Link } from "react-router-dom";
+import { Routes, Route, Navigate, Link, useNavigate } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
 import AdminLoginPage from "./pages/AdminLoginPage";
 import UsersPage from "./pages/UsersPage";
@@ -13,7 +13,17 @@ import { useEffect, useRef, useState } from "react";
 import { signOut } from "firebase/auth";
 import { auth } from "./firebase";
 import UserDashboardPage from "./pages/UserDashboardPage";
+import { requireUser } from "./utils/requireUser";
+import { requireAdmin } from "./utils/requireAdmin";
 
+function UserRoute({ children }: { children: React.ReactNode }) {
+  return requireUser() ? <>{children}</> : <Navigate to="/login" replace />;
+}
+
+function AdminRoute({ children }: { children: React.ReactNode }) {
+  const navigate = useNavigate();
+  return requireAdmin(navigate) ? <>{children}</> : <Navigate to="/admin-login" replace />;
+}
 
 function Shell({ children }: { children: React.ReactNode }) {
   const isAdmin = localStorage.getItem("isAdmin") === "true";
@@ -108,84 +118,87 @@ export default function App() {
   return (
     <Routes>
       <Route path="/" element={<Navigate to="/login" replace />} />
+
       <Route path="/login" element={<LoginPage />} />
       <Route path="/admin-login" element={<AdminLoginPage />} />
 
-<Route
-  path="/admin"
-  element={
-    <Shell>
-      <AdminMenuPage />
-    </Shell>
-  }
-/>
-
-<Route
-  path="/register-user"
-  element={
-    <Shell>
-      <ProfilePage />
-    </Shell>
-  }
-/>
-
-<Route
-  path="/dashboard"
-  element={
-    <Shell>
-      <UserDashboardPage />
-    </Shell>
-  }
-/>
-
-
+      {/* USER routes */}
+      <Route
+        path="/dashboard"
+        element={
+          <UserRoute>
+            <UserDashboardPage />
+          </UserRoute>
+        }
+      />
       <Route
         path="/play"
         element={
-          <Shell>
+          <UserRoute>
             <PlayPage />
-          </Shell>
+          </UserRoute>
         }
       />
       <Route
         path="/play/timer"
         element={
-          <Shell>
+          <UserRoute>
             <TimerPage />
-          </Shell>
+          </UserRoute>
         }
       />
       <Route
         path="/statistics"
         element={
-          <Shell>
+          <UserRoute>
             <StatisticsPage />
-          </Shell>
-        }
-      />
-
-      <Route
-        path="/users"
-        element={
-          <Shell>
-            <UsersPage />
-          </Shell>
-        }
-      />
-      <Route
-        path="/users/:id"
-        element={
-          <Shell>
-            <UserDetailsPage />
-          </Shell>
+          </UserRoute>
         }
       />
       <Route
         path="/profile"
         element={
-          <Shell>
+          <UserRoute>
             <ProfilePage />
-          </Shell>
+          </UserRoute>
+        }
+      />
+
+      {/* ADMIN routes */}
+      <Route
+  path="/register-user"
+  element={
+    <AdminRoute>
+      <ProfilePage />
+    </AdminRoute>
+  }
+/>
+
+      <Route
+        path="/admin"
+        element={
+          <AdminRoute>
+            <AdminMenuPage />
+          </AdminRoute>
+        }
+      />
+      <Route
+        path="/users"
+        element={
+          <AdminRoute>
+            <UsersPage />
+          </AdminRoute>
+        }
+
+
+        
+      />
+      <Route
+        path="/users/:id"
+        element={
+          <AdminRoute>
+            <UserDetailsPage />
+          </AdminRoute>
         }
       />
 

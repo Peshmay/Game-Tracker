@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import AppShell from "../components/layout/AppShell";
 import { Users, UserPlus, ShieldCheck, ChevronRight, Sparkles } from "lucide-react";
-
+import AdminShell from "../components/layout/AdminShell";
 export default function AdminMenuPage() {
   const navigate = useNavigate();
 
@@ -14,7 +14,7 @@ export default function AdminMenuPage() {
   }, [navigate]);
 
   return (
-    <AppShell>
+    <AdminShell>
       {/* Full page canvas */}
       <div className="relative min-h-[calc(100vh-0px)] overflow-hidden px-6 py-10">
         {/* Background gradient + soft glow */}
@@ -113,6 +113,6 @@ export default function AdminMenuPage() {
           </div>
         </div>
       </div>
-    </AppShell>
+    </AdminShell>
   );
 }

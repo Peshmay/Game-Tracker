@@ -17,7 +17,6 @@ export default function UsersPage() {
 
   // ✅ ADMIN GUARD
   useEffect(() => {
-    if (!requireAdmin(navigate)) return;
     fetchUsers();
   }, []);
 
