@@ -1,45 +1,81 @@
-import React from "react";
 import { NavLink } from "react-router-dom";
+import { User, Users, Gamepad2 } from "lucide-react";
 
-const navItems = [
-  { to: "/profile", label: "Profile", icon: "👤" },
-  { to: "/users", label: "Users", icon: "👥" },
-  { to: "/play", label: "Games", icon: "🎮" },
+const sidebarItems = [
+  {
+    to: "/profile",
+    label: "Profile",
+    icon: User,
+  },
+  {
+    to: "/users",
+    label: "Users",
+    icon: Users,
+  },
+  {
+    to: "/play",
+    label: "Games",
+    icon: Gamepad2,
+  },
 ];
 
-const Sidebar: React.FC = () => {
+export default function Sidebar() {
   return (
-    <aside className="w-56 bg-[#061019] text-slate-100 flex flex-col items-center py-10 shadow-xl">
-      <div className="mb-10 text-xl font-bold tracking-wide">
-        GameTime
-      </div>
+    <aside className="w-24 bg-gradient-to-b from-[#050c1b] to-[#020816] border-r border-white/5 flex flex-col items-center pt-10">
+      
+      {/* Logo */}
+      <div className="mb-10 text-xl">🎮</div>
 
-      <nav className="flex flex-col gap-8 w-full items-center">
-        {navItems.map((item) => (
-          <NavLink
-            key={item.to}
-            to={item.to}
-            className={({ isActive }) =>
-              [
-                "flex flex-col items-center gap-2 text-sm transition",
-                isActive ? "text-cyan-300" : "text-slate-300 hover:text-white",
-              ].join(" ")
-            }
-          >
-            <div
-              className={
-                "w-12 h-12 rounded-full flex items-center justify-center " +
-                "bg-gradient-to-br from-[#262f4a] to-[#5f2c8a] shadow-md"
-              }
+      {/* Navigation */}
+      <nav className="flex flex-col items-center gap-8">
+        {sidebarItems.map((item) => {
+          const Icon = item.icon;
+
+          return (
+            <NavLink
+              key={item.label}
+              to={item.to}
+              className="group flex flex-col items-center gap-2 w-20 select-none"
             >
-              <span className="text-xl">{item.icon}</span>
-            </div>
-            <span>{item.label}</span>
-          </NavLink>
-        ))}
+              {({ isActive }) => (
+                <>
+                  {/* Icon bubble */}
+                  <div
+                    className={[
+                      "h-12 w-12 rounded-full flex items-center justify-center",
+                      "transition-all duration-200 border",
+                      isActive
+                        ? "bg-white/10 border-white/10 shadow-[0_0_30px_rgba(168,85,247,0.45)]"
+                        : "bg-white/5 border-white/5 hover:bg-white/10 hover:border-white/10",
+                    ].join(" ")}
+                  >
+                    <Icon
+                      size={20}
+                      className={
+                        isActive
+                          ? "text-purple-300"
+                          : "text-slate-300 group-hover:text-slate-100"
+                      }
+                    />
+                  </div>
+
+                  {/* Label */}
+                  <div
+                    className={[
+                      "text-[11px] tracking-wide",
+                      isActive
+                        ? "text-slate-200"
+                        : "text-slate-400 group-hover:text-slate-200",
+                    ].join(" ")}
+                  >
+                    {item.label}
+                  </div>
+                </>
+              )}
+            </NavLink>
+          );
+        })}
       </nav>
     </aside>
   );
-};
-
-export default Sidebar;
+}
