@@ -7,13 +7,17 @@ import { auth } from "../firebase";
 import useAuth from "../hooks/useAuth";
 import WeatherWidget from "../components/WeatherWidget";
 import AppShell from "../components/layout/AppShell";
+import { ArrowLeft } from "lucide-react";
+import { requireAdmin } from "../utils/requireAdmin"; // ✅ NEW
 
 export default function UsersPage() {
   const [users, setUsers] = useState<any[]>([]);
   const navigate = useNavigate();
   const authUser = useAuth();
 
+  // ✅ ADMIN GUARD
   useEffect(() => {
+    if (!requireAdmin(navigate)) return;
     fetchUsers();
   }, []);
 
@@ -24,101 +28,59 @@ export default function UsersPage() {
 
   async function handleDelete(id: number) {
     if (!confirm("Delete this user? This cannot be undone.")) return;
-
-    try {
-      await axios.delete(`http://localhost:4000/api/users/${id}`);
-      fetchUsers();
-    } catch (err: any) {
-      console.error("Delete failed:", err);
-      alert(
-        err?.response?.data?.message ||
-          "Could not delete this user. They might have existing game sessions."
-      );
-    }
+    await axios.delete(`http://localhost:4000/api/users/${id}`);
+    fetchUsers();
   }
 
   function picSrc(u: any) {
-    const p = u.profilePic as string | null;
-
-    if (!p || p === "/uploads/default.png") {
-      return getAvatarForUser(u.id);
-    }
-    if (p.startsWith("/uploads")) {
-      return `http://localhost:4000${p}`;
-    }
-    return p;
+    if (u.profilePic?.startsWith("/avatars")) return u.profilePic;
+    return getAvatarForUser(u.id);
   }
 
   async function logout() {
     await signOut(auth);
+    localStorage.removeItem("isAdmin");
     navigate("/login", { replace: true });
   }
 
   return (
     <AppShell>
-    <div className="p-6 space-y-4">
-      <div className="flex justify-between items-center mb-4">
-        <div className="flex flex-col gap-1">
-          <h2 className="text-xl font-semibold">All Users</h2>
-          <WeatherWidget />
-        </div>
+      <div className="p-6 space-y-4">
+        {/* Back */}
+        <button
+          onClick={() => navigate("/admin")}
+          className="inline-flex items-center gap-2 text-slate-300 hover:text-white transition"
+        >
+          <ArrowLeft size={18} />
+          <span className="text-sm">Back to Admin Menu</span>
+        </button>
 
-        <div className="flex items-center gap-3">
-          <span className="text-sm text-gray-300">
-            Logged in as: {authUser?.email}
-          </span>
+        <h2 className="text-xl font-semibold">All Users</h2>
 
-          <button
-            onClick={logout}
-            className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded shadow-md transition"
-          >
-            Logout
-          </button>
+        <div className="flex flex-wrap gap-4">
+          {users.map((u) => (
+            <div key={u.id} className="w-48 bg-white p-3 rounded shadow text-center relative">
+              <button
+                onClick={() => handleDelete(u.id)}
+                className="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-1 rounded"
+              >
+                ✕
+              </button>
 
-          <button
-            onClick={() => navigate("/profile")}
-            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded shadow-md transition"
-          >
-            + Add User
-          </button>
+              <img
+                src={picSrc(u)}
+                className="w-24 h-24 rounded-full mx-auto"
+              />
+
+              <p className="font-semibold mt-2">
+                {u.firstName} {u.lastName}
+              </p>
+
+              <p className="text-xs text-gray-600">{u.email}</p>
+            </div>
+          ))}
         </div>
       </div>
-
-      <div className="flex flex-wrap gap-4">
-        {users.map((u) => (
-          <div
-            key={u.id}
-            className="w-48 bg-gray-100 text-slate-900 p-3 rounded shadow text-center hover:scale-105 hover:bg-blue-50 transition transform relative"
-          >
-            <button
-              onClick={() => handleDelete(u.id)}
-              className="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-1 rounded hover:bg-red-600 transition"
-            >
-              ✕
-            </button>
-
-            <img
-              src={picSrc(u)}
-              alt={u.firstName}
-              className="w-24 h-24 object-cover mx-auto rounded-full"
-            />
-
-            <p className="font-semibold mt-2">
-              {u.firstName} {u.lastName}
-            </p>
-
-            <p className="text-xs text-gray-600">{u.email}</p>
-
-            <button
-              onClick={() => navigate(`/users/${u.id}`)}
-              className="mt-3 text-sm bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition"
-            >
-              View
-            </button>
-          </div>
-        ))}
-      </div>
-    </div>
     </AppShell>
   );
 }

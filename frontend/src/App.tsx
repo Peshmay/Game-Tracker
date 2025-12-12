@@ -12,6 +12,7 @@ import AdminMenuPage from "./pages/AdminMenuPage";
 import { useEffect, useRef, useState } from "react";
 import { signOut } from "firebase/auth";
 import { auth } from "./firebase";
+import UserDashboardPage from "./pages/UserDashboardPage";
 
 
 function Shell({ children }: { children: React.ReactNode }) {
@@ -127,6 +128,16 @@ export default function App() {
     </Shell>
   }
 />
+
+<Route
+  path="/dashboard"
+  element={
+    <Shell>
+      <UserDashboardPage />
+    </Shell>
+  }
+/>
+
 
       <Route
         path="/play"

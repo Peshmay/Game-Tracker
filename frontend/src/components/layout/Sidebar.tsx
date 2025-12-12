@@ -1,28 +1,36 @@
 import { NavLink } from "react-router-dom";
-import { User, Users, Gamepad2 } from "lucide-react";
+import {
+  User,
+  Users,
+  Gamepad2,
+  LayoutDashboard,
+  ShieldCheck,
+  BarChart3,
+} from "lucide-react";
 
-const sidebarItems = [
-  {
-    to: "/profile",
-    label: "Profile",
-    icon: User,
-  },
-  {
-    to: "/users",
-    label: "Users",
-    icon: Users,
-  },
-  {
-    to: "/play",
-    label: "Games",
-    icon: Gamepad2,
-  },
-];
+type Item = {
+  to: string;
+  label: string;
+  icon: React.ElementType;
+};
 
 export default function Sidebar() {
+  const isAdmin = localStorage.getItem("isAdmin") === "true";
+
+  const sidebarItems: Item[] = isAdmin
+    ? [
+        { to: "/admin", label: "Admin", icon: ShieldCheck },
+        { to: "/users", label: "Users", icon: Users },
+        { to: "/register-user", label: "Register", icon: User },
+      ]
+    : [
+        { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+        { to: "/play", label: "Games", icon: Gamepad2 },
+        { to: "/statistics", label: "Stats", icon: BarChart3 },
+      ];
+
   return (
     <aside className="w-24 bg-gradient-to-b from-[#050c1b] to-[#020816] border-r border-white/5 flex flex-col items-center pt-10">
-      
       {/* Logo */}
       <div className="mb-10 text-xl">🎮</div>
 
@@ -39,7 +47,6 @@ export default function Sidebar() {
             >
               {({ isActive }) => (
                 <>
-                  {/* Icon bubble */}
                   <div
                     className={[
                       "h-12 w-12 rounded-full flex items-center justify-center",
@@ -59,7 +66,6 @@ export default function Sidebar() {
                     />
                   </div>
 
-                  {/* Label */}
                   <div
                     className={[
                       "text-[11px] tracking-wide",

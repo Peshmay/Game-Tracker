@@ -28,8 +28,11 @@ const LoginPage: React.FC = () => {
     try {
       setLoading(true);
       await signInWithEmailAndPassword(auth, email, password);
-      // normal user: go to Users page after login
-      navigate("/users", { replace: true });
+    // normal user: go to USER dashboard
+localStorage.removeItem("isAdmin"); // important: avoid admin mode “sticking”
+localStorage.removeItem("adminEmail");
+navigate("/dashboard", { replace: true });
+
     } catch (err: any) {
       console.error(err);
       if (err?.code === "auth/user-not-found") {
