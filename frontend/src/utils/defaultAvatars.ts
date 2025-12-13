@@ -1,4 +1,4 @@
-const avatars = [
+export const defaultAvatars = [
   "/avatars/fox.png",
   "/avatars/wolf.png",
   "/avatars/cat.png",
@@ -11,10 +11,6 @@ const avatars = [
   "/avatars/frog.png",
 ];
 
-export function getAvatarForUser(id: number | string) {
-  const idx =
-    Math.abs(
-      Array.from(String(id)).reduce((acc, ch) => acc + ch.charCodeAt(0), 0)
-    ) % avatars.length;
-  return avatars[idx];
+export function pickRandomAvatar() {
+  return defaultAvatars[Math.floor(Math.random() * defaultAvatars.length)];
 }
