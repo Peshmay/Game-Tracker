@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase";
 import AppShell from "../components/layout/AppShell";
+import { sendPasswordResetEmail } from "firebase/auth";
+
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
@@ -12,6 +14,8 @@ const LoginPage: React.FC = () => {
 
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
+
 
   const today = new Date();
   const dateLabel = today.toLocaleDateString(undefined, {
@@ -20,6 +24,21 @@ const LoginPage: React.FC = () => {
     month: "short",
     day: "numeric",
   });
+  
+  async function handleForgotPassword() {
+    if (!email) {
+      setError("Enter your email first, then click Forgot password.");
+      return;
+    }
+    try {
+      await sendPasswordResetEmail(auth, email);
+      alert("Password reset email sent.");
+    } catch (err: unknown) {
+      console.error(err);
+      setError(err instanceof Error ? err.message : "Failed to send reset email");
+    }
+  }
+
 async function handleSubmit(e: React.FormEvent) {
   e.preventDefault();
   setError("");
@@ -30,8 +49,8 @@ async function handleSubmit(e: React.FormEvent) {
     const cred = await signInWithEmailAndPassword(auth, email, password);
 
     // Firebase token (JWT)
-    const token = await cred.user.getIdToken();
-
+const token = await cred.user.getIdToken();
+const userEmail = cred.user.email ?? email;
     // Store minimal user object for your app
     const user = {
       email: cred.user.email,
@@ -40,12 +59,24 @@ async function handleSubmit(e: React.FormEvent) {
       name: cred.user.displayName ?? null,
     };
 
-    localStorage.setItem("token", token);
-    localStorage.setItem("user", JSON.stringify(user));
 
-    // IMPORTANT: avoid admin mode “sticking”
-    localStorage.removeItem("isAdmin");
-    localStorage.removeItem("adminEmail");
+// ✅ Use localStorage or sessionStorage depending on rememberMe
+const storage = rememberMe ? localStorage : sessionStorage;
+
+// clear the other storage so user doesn't "stick" in both
+localStorage.removeItem("token");
+localStorage.removeItem("user");
+sessionStorage.removeItem("token");
+sessionStorage.removeItem("user");
+
+storage.setItem("token", token);
+storage.setItem("user", JSON.stringify(user));
+
+// IMPORTANT: clear admin mode in both storages
+localStorage.removeItem("isAdmin");
+localStorage.removeItem("adminEmail");
+sessionStorage.removeItem("isAdmin");
+sessionStorage.removeItem("adminEmail");
 
     navigate("/dashboard", { replace: true });
   } catch (err: any) {
@@ -129,6 +160,27 @@ return (
               className="w-full rounded-sm bg-[#e7f0ff] text-slate-900 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-400"
             />
           </div>
+
+          <div className="flex items-center justify-between">
+  <label className="flex items-center gap-2 text-sm text-slate-300">
+    <input
+      type="checkbox"
+      checked={rememberMe}
+      onChange={(e) => setRememberMe(e.target.checked)}
+      className="accent-cyan-400"
+    />
+    Remember me
+  </label>
+
+  <button
+    type="button"
+    onClick={handleForgotPassword}
+    className="text-sm text-slate-300 hover:text-cyan-300 underline-offset-4 hover:underline"
+  >
+    Forgot Password?
+  </button>
+</div>
+
 
           {error && (
             <p className="text-sm text-red-400 bg-red-900/20 border border-red-700 rounded px-3 py-2">

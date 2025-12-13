@@ -10,6 +10,8 @@ const AdminLoginPage: React.FC = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
+
   const navigate = useNavigate();
 
   const dateLabel = new Date().toLocaleDateString(undefined, {
@@ -18,6 +20,12 @@ const AdminLoginPage: React.FC = () => {
     month: "short",
     day: "numeric",
   });
+
+  function handleForgotPassword(e: React.MouseEvent) {
+  e.preventDefault();
+  alert("Admin password reset is not implemented in this demo.");
+}
+
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -32,9 +40,17 @@ const AdminLoginPage: React.FC = () => {
       if (!isAdminEmail) {
         throw new Error("You are not authorized as admin.");
       }
+const storage = rememberMe ? localStorage : sessionStorage;
 
-      localStorage.setItem("isAdmin", "true");
-      localStorage.setItem("adminEmail", cred.user.email || email);
+// clear the other storage so admin doesn't "stick" accidentally
+localStorage.removeItem("isAdmin");
+localStorage.removeItem("adminEmail");
+sessionStorage.removeItem("isAdmin");
+sessionStorage.removeItem("adminEmail");
+
+storage.setItem("isAdmin", "true");
+storage.setItem("adminEmail", cred.user.email || email);
+
 
       navigate("/admin", { replace: true }); // go to admin menu
     } catch (err: any) {
@@ -113,6 +129,27 @@ const AdminLoginPage: React.FC = () => {
               className="w-full rounded-sm bg-[#e7f0ff] text-slate-900 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-400"
             />
           </div>
+
+          <div className="flex items-center justify-between">
+  <label className="flex items-center gap-2 text-sm text-slate-300">
+    <input
+      type="checkbox"
+      checked={rememberMe}
+      onChange={(e) => setRememberMe(e.target.checked)}
+      className="accent-cyan-400"
+    />
+    Remember me
+  </label>
+
+  <button
+    type="button"
+    onClick={handleForgotPassword}
+    className="text-sm text-slate-300 hover:text-cyan-300 underline-offset-4 hover:underline"
+  >
+    Forgot Password?
+  </button>
+</div>
+
 
           {error && (
             <p className="text-sm text-red-400 bg-red-900/20 border border-red-700 rounded px-3 py-2">
