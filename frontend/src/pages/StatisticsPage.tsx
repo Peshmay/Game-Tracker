@@ -14,8 +14,11 @@ import {
   Legend
 } from "recharts";
 import AppShell from "../components/layout/AppShell";
+import { ArrowLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export default function StatisticsPage() {
+  const navigate = useNavigate();
   const [stats, setStats] = useState<any>(null);
 
   useEffect(() => {
@@ -30,6 +33,14 @@ export default function StatisticsPage() {
   return (
     <AppShell>
     <div className="p-6 space-y-8">
+      {/* Back to Dashboard */}
+    <button
+      onClick={() => navigate("/dashboard")}
+      className="inline-flex items-center gap-2 text-slate-300 hover:text-cyan-400 transition mb-6"
+    >
+      <ArrowLeft size={18} />
+      <span className="text-sm">Back to Dashboard</span>
+    </button>
       <h2 className="text-xl font-semibold">Game Statistics</h2>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

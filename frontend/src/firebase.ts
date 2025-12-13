@@ -1,14 +1,15 @@
+/// <reference types="vite/client" />
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBvbiA06w5IZKF2_u7KUd-w8a5YymRPZBM",
-  authDomain: "gametimetracker-8a5ed.firebaseapp.com",
-  projectId: "gametimetracker-8a5ed",
-  storageBucket: "gametimetracker-8a5ed.firebasestorage.app",
-  messagingSenderId: "385625584584",
-  appId: "1:385625584584:web:5e061f7fe125a4991806fd",
-  measurementId: "G-G1DDHYTMP3"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
 };
 
 const app = initializeApp(firebaseConfig);

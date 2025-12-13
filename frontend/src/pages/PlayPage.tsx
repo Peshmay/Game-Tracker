@@ -5,25 +5,39 @@ import GameCard from "../components/GameCard";
 import { useNavigate } from "react-router-dom";
 import { getAvatarForUser } from "../utils/avatars";
 import AppShell from "../components/layout/AppShell";
+import { ArrowLeft } from "lucide-react";
 
 export default function PlayPage() {
   const [users, setUsers] = useState<any[]>([]);
+  
   const [games, setGames] = useState<any[]>([]);
   const [userId, setUserId] = useState<number | undefined>();
   const [gameId, setGameId] = useState<number | undefined>();
 
   const navigate = useNavigate();
+const isAdmin = localStorage.getItem("isAdmin") === "true";
+const me = JSON.parse(localStorage.getItem("user") || "null"); // { email, uid, ... }
 
-  useEffect(() => {
-    (async () => {
-      setUsers((await axios.get("http://localhost:4000/api/users")).data);
-      setGames((await axios.get("http://localhost:4000/api/games")).data);
-    })();
-  }, []);
+ useEffect(() => {
+  (async () => {
+    const usersRes = await axios.get("http://localhost:4000/api/users");
+    const gamesRes = await axios.get("http://localhost:4000/api/games");
+
+    setUsers(usersRes.data);
+    setGames(gamesRes.data);
+
+    // ✅ If normal user: auto-pick their userId by matching email
+    if (!isAdmin && me?.email) {
+      const found = usersRes.data.find((u: any) => u.email === me.email);
+      if (found) setUserId(found.id);
+    }
+  })();
+}, []);
+
 
   function start() {
     if (!userId || !gameId) {
-      alert("Select user and game first.");
+      alert("Select game first.");
       return;
     }
     const user = users.find((u) => u.id === userId);
@@ -49,9 +63,18 @@ export default function PlayPage() {
   return (
     <AppShell>
     <div className="p-6 space-y-6">
+      {/* Back to Dashboard */}
+    <button
+      onClick={() => navigate("/dashboard")}
+      className="inline-flex items-center gap-2 text-slate-300 hover:text-cyan-400 transition mb-6"
+    >
+      <ArrowLeft size={18} />
+      <span className="text-sm">Back to Dashboard</span>
+    </button>
       <h2 className="text-2xl font-bold text-gray-100">Play Game</h2>
 
       <div className="flex flex-wrap items-center gap-3">
+        {isAdmin && (
         <select
           className="border border-slate-600 bg-slate-800 text-slate-100 p-2 rounded min-w-[180px]"
           value={userId ?? ""}
@@ -64,7 +87,7 @@ export default function PlayPage() {
             </option>
           ))}
         </select>
-
+        )}
         <select
           className="border border-slate-600 bg-slate-800 text-slate-100 p-2 rounded min-w-[180px]"
           value={gameId ?? ""}
@@ -95,19 +118,24 @@ export default function PlayPage() {
           </span>
         </h3>
 
-        <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl">
-          {genres.slice(0, 4).map((genre) => {
-            const game = genre.games[0];
-            return (
-              <GameCard
-                key={genre.id}
-                genre={genre}
-                game={game}
-                onClick={() => handleShowcaseClick(game.name)}
-              />
-            );
-          })}
-        </div>
+        <div className="w-full flex justify-center">
+  <div className="w-full max-w-7xl px-6">
+    <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-8">
+      {genres.slice(0, 4).map((genre) => {
+        const game = genre.games[0];
+        return (
+          <GameCard
+            key={genre.id}
+            genre={genre}
+            game={game}
+            onClick={() => handleShowcaseClick(game.name)}
+          />
+        );
+      })}
+    </div>
+  </div>
+</div>
+
       </section>
     </div>
     </AppShell>

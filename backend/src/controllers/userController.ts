@@ -6,14 +6,14 @@ const userSchema = z.object({
   email: z.string().email(),
   firstName: z.string().min(1),
   lastName: z.string().min(1),
-  profilePic: z.string().optional()
+  profilePic: z.string().optional(),
 });
 
 export async function createUser(req: Request, res: Response) {
   try {
     const parsed = userSchema.parse({
       ...req.body,
-      profilePic: req.body.profilePic
+      profilePic: req.body.profilePic,
     });
 
     const profilePic = req.file
@@ -25,8 +25,8 @@ export async function createUser(req: Request, res: Response) {
         email: parsed.email,
         firstName: parsed.firstName,
         lastName: parsed.lastName,
-        profilePic
-      }
+        profilePic,
+      },
     });
 
     res.json(user);
@@ -45,8 +45,8 @@ export async function getUserById(req: Request, res: Response) {
   const user = await prisma.user.findUnique({
     where: { id },
     include: {
-      sessions: { include: { game: true }, orderBy: { startedAt: "desc" } }
-    }
+      sessions: { include: { game: true }, orderBy: { startedAt: "desc" } },
+    },
   });
   if (!user) return res.status(404).json({ message: "Not found" });
   res.json(user);
