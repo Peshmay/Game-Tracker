@@ -40,7 +40,7 @@ A game tracking application with admin/user roles, statistics, and CI-tested bac
 
 ### Register page
 
-![Register page](screenshots/Register page.png)
+![Register page](screenshots/Registerpage.png)
 
 Game Tracker is a full-stack TypeScript application for tracking game playtime per user, visualizing statistics, and managing users through an admin interface.
 
