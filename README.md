@@ -4,6 +4,44 @@
 
 A game tracking application with admin/user roles, statistics, and CI-tested backend.
 
+## Screenshots
+
+### Login Page
+
+![Login Page](screenshots/Userlogin.png)
+
+### Users
+
+![Users](screenshots/UserDashboard.png)
+
+### Play Game
+
+![Play Page](screenshots/PlayGame page.png)
+
+### Timer Page
+
+![Timer Page](screenshots/Timer page.png)
+
+### Statistics
+
+![Statistics](screenshots/Statistic Page.png)
+
+### Admin Login
+
+![Admin Login](screenshots/AdminLogin page.png)
+
+### Admin Dashboard
+
+![Admin Dashboard](screenshots/Admin Dashboard.png)
+
+### Admin Users
+
+![Admin Users](screenshots/All Users.png)
+
+### Register page
+
+![Register page](screenshots/Register page.png)
+
 Game Tracker is a full-stack TypeScript application for tracking game playtime per user, visualizing statistics, and managing users through an admin interface.
 
 The project demonstrates CRUD operations, authentication, REST APIs, testing, and CI with GitHub Actions.
