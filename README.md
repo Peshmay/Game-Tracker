@@ -16,27 +16,27 @@ A game tracking application with admin/user roles, statistics, and CI-tested bac
 
 ### Play Game
 
-![Play Page](screenshots/PlayGame page.png)
+![Play Page](screenshots/PlayGamepage.png)
 
 ### Timer Page
 
-![Timer Page](screenshots/Timer page.png)
+![Timer Page](screenshots/Timerpage.png)
 
 ### Statistics
 
-![Statistics](screenshots/Statistic Page.png)
+![Statistics](screenshots/StatisticPage.png)
 
 ### Admin Login
 
-![Admin Login](screenshots/AdminLogin page.png)
+![Admin Login](screenshots/AdminLogin.png)
 
 ### Admin Dashboard
 
-![Admin Dashboard](screenshots/Admin Dashboard.png)
+![Admin Dashboard](screenshots/AdminDashboard.png)
 
 ### Admin Users
 
-![Admin Users](screenshots/All Users.png)
+![Admin Users](screenshots/AllUsers.png)
 
 ### Register page
 
