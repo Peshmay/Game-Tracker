@@ -1,144 +1,147 @@
-# GameTimeTracker – Monorepo (Backend + Frontend)
+# Game Tracker
 
-This is a **full-stack TypeScript project** using:
+[![Backend Tests](https://github.com/Peshmay/Game-Tracker/actions/workflows/backend-tests.yml/badge.svg)](https://github.com/Peshmay/Game-Tracker/actions/workflows/backend-tests.yml)
 
-- Backend: Node.js, Express, PostgreSQL, Prisma, Zod, Multer
-- Frontend: React, TypeScript, Vite, TailwindCSS, Recharts, Firebase Auth
-- Extra: Weather widget using OpenWeatherMap API
+A game tracking application with admin/user roles, statistics, and CI-tested backend.
 
-## 1. Prerequisites
+Game Tracker is a full-stack TypeScript application for tracking game playtime per user, visualizing statistics, and managing users through an admin interface.
 
-- Node.js (>= 18)
-- PostgreSQL running locally
-- An OpenWeatherMap API key
-- A Firebase project (you already have: `gametimetracker-8a5ed`)
+The project demonstrates CRUD operations, authentication, REST APIs, testing, and CI with GitHub Actions.
+Technologies Used
+Frontend
+React
+TypeScript
+Vite
+Tailwind CSS
+Recharts
+Firebase Authentication
+Backend
+Node.js
+Express
+TypeScript
+Prisma ORM
+Zod
+Multer
+Winston (logging)
+Jest + Supertest (testing)
+Database
+PostgreSQL
+CI / Tooling
+GitHub Actions
+Jest Coverage
+Prisma Migrations & Seed
 
-## 2. Clone & install
+Prerequisites
+Make sure you have the following installed:
+Node.js (>= 18)
+PostgreSQL
+Firebase project (Email/Password auth enabled)
+OpenWeatherMap API key
 
-```bash
-cd gametimetracker-monorepo
+Installation
 
-# Backend
-cd backend
-npm install
+1. Clone the Repository
+   git clone https://github.com/Peshmay/Game-Tracker.git
+   cd Game-Tracker
+2. Backend Setup
+   cd backend
+   npm install
+   Create a PostgreSQL database:
+   CREATE DATABASE gametimetracker_dev;
+   Create .env file in backend/:
+   DATABASE_URL="postgresql://postgres:postgres@localhost:5432/gametimetracker_dev?schema=public"
+   WEATHER_API_KEY="YOUR_OPENWEATHER_API_KEY"
+   PORT=4000
+   Run Prisma:
+   npx prisma migrate dev --name init
+   npx prisma db seed
+3. Frontend Setup
+   cd ../frontend
+   npm install
 
-# Frontend
-cd ../frontend
-npm install
-```
-
-## 3. Configure backend (.env)
-
-In `backend/.env` (create it from `.env.example`):
-
-```env
-DATABASE_URL="postgresql://postgres:postgres@localhost:5432/gametimetracker_dev?schema=public"
-WEATHER_API_KEY="YOUR_OPENWEATHER_API_KEY"
-PORT=4000
-```
-
-Create the database in Postgres:
-
-```sql
-CREATE DATABASE gametimetracker_dev;
-```
-
-## 4. Prisma migrate & seed
-
-```bash
-cd backend
-npx prisma migrate dev --name init
-npx prisma db seed
-```
-
-This will create tables and seed:
-
-- A demo user (`demo.user@example.com`)
-- A few games (GTA V, Portal 2, Witcher 3, Civilization V)
-
-## 5. Run the backend
-
-```bash
+Running the Application
+Start the Backend
 cd backend
 npm run dev
-```
+Backend runs on:http://localhost:4000
 
-Backend is now on **http://localhost:4000**.
-
-## 6. Run the frontend
-
-```bash
+Start the Frontend
 cd frontend
 npm run dev
-```
+Frontend runs on:http://localhost:5173
 
-Frontend dev server: usually **http://localhost:5173**.
+Authentication (Firebase)
+Authentication is handled with Firebase Email/Password.
+User Login
+Visit /login
+Sign in using Firebase credentials
+Redirected to /play
+Admin Login
+On /login, click Admin login
+Admin emails are defined in:
+frontend/src/pages/AdminLoginPage.tsx
+Redirected to /users (admin dashboard)
 
-## 7. Login flow (Firebase)
+Main Features
+User Features
+Select user and game
+Start and stop game sessions
+View statistics:
+Time per game
+Time per user
+Weekly activity
+Leaderboard
+Weather widget (OpenWeatherMap)
+Admin Features
+View all users
+Create users (with optional avatar upload)
+Delete users
+View detailed user statistics
 
-You will manage accounts directly in the **Firebase console**:
+API Overview (Backend)
+Users
+GET /api/users
+GET /api/users/:id
+POST /api/users
+DELETE /api/users/:id
+Games
+GET /api/games
+POST /api/games
+Sessions
+POST /api/sessions/start
+PATCH /api/sessions/:id/stop
+Statistics
+GET /api/statistics
+Weather
+GET /api/weather?city=CityName
 
-- Create normal users there (email/password).
-- Create at least one admin user with email `admin@example.com`
-  (or change the list in `frontend/src/pages/AdminLoginPage.tsx`).
+Testing
+Backend tests are written using Jest + Supertest and run automatically in GitHub Actions.
+Run Tests Locally
+cd backend
+npm test
+Run Tests with Coverage
+cd backend
+npm run test:coverage
 
-**User login:**
+Continuous Integration
+GitHub Actions runs backend tests on:
+Every push to main
+Every pull request to main
+Coverage artifacts are generated automatically
 
-- Go to `/login` (root redirects here).
-- Sign in with Firebase (email/password).
-- On success → redirected to `/play`.
+Project Customization
+Admin emails: frontend/src/pages/AdminLoginPage.tsx
+Avatars mapping: frontend/src/utils/avatars.ts
+Seed data: backend/prisma/seed.ts
+Database schema: backend/prisma/schema.prisma
+Logger config: backend/src/utils/logger.ts
 
-**Admin login:**
-
-- On `/login`, click **“Go to admin login”**.
-- Sign in with admin email.
-- On success → redirected to `/users` (Admin area).
-
-## 8. Main pages
-
-- `/login` – normal user login (Firebase).
-- `/admin-login` – admin login.
-- `/play` – choose user + game, see game cards, start timer.
-- `/play/timer` – timer page, shows selected user & game, “STOP”.
-- `/statistics` – charts with Recharts (per game, per user, weekly trend, leaderboard).
-- `/users` – admin page: see all users, delete users, “+ Add User”.
-- `/users/:id` – user details with per‑game breakdown.
-- `/profile` – register user (email, first/last name, optional profile picture).
-
-## 9. API overview (backend)
-
-- `GET /api/users` – list users
-- `GET /api/users/:id` – get user with sessions
-- `POST /api/users` – create user (multipart/form-data, uses Multer)
-- `DELETE /api/users/:id` – delete user (and their sessions)
-
-- `GET /api/games` – list games
-- `POST /api/games` – create game
-
-- `POST /api/sessions/start` – start a session
-- `PATCH /api/sessions/stop` – stop a session (body: `{ id }`)
-- `PATCH /api/sessions/:id/stop` – alternative stop endpoint
-
-- `GET /api/statistics` – aggregate minutes per game, per user, weekly usage, leaderboard
-
-- `GET /api/weather?city=Uddevalla` – weather widget data
-
-## 10. Tailwind & styling
-
-The frontend already has Tailwind configured. Components use utility classes to create:
-
-- Dark background (gaming style)
-- Responsive layouts (grids, flex)
-- Nice cards for users and games
-
-## 11. Where to customise
-
-- **Admin emails**: `frontend/src/pages/AdminLoginPage.tsx`
-- **Game showcase cards**: `frontend/src/assets/genres.ts`
-- **Avatar mapping**: `frontend/src/utils/avatars.ts`
-- **Seed games & demo user**: `backend/prisma/seed.ts`
-- **Database models**: `backend/prisma/schema.prisma`
-
-You can now open VS Code, run both servers, and show everything in your presentation:
-auth, CRUD, Prisma, charts, weather widget, etc.
-# Game-Tracker
+Project Purpose
+This project was built to demonstrate:
+Full-stack TypeScript development
+REST API design
+Authentication with Firebase
+Database modeling with Prisma
+Automated testing & CI pipelines
+Clean project structure and documentation
