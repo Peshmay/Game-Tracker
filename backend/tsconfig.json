@@ -8,5 +8,13 @@
     "esModuleInterop": true,
     "skipLibCheck": true
   },
-  "include": ["src"]
+  "include": [
+    "src"
+  ],
+  "exclude": [
+    "src/services/_tests_/**",
+    "**/*.test.ts",
+    "**/*.spec.ts",
+    "src/utils/__mocks__/**"
+  ]
 }

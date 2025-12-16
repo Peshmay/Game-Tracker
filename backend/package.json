@@ -1,6 +1,9 @@
 {
   "name": "gametimetracker-backend",
   "version": "1.0.0",
+  "engines": {
+  "node": "18.x"
+},
   "main": "dist/index.js",
   "scripts": {
     "dev": "nodemon --watch src --ext ts --exec ts-node src/server.ts",
