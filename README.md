@@ -20,7 +20,7 @@ A game tracking application with admin/user roles, statistics, and CI-tested bac
 
 ### Timer Page
 
-![Timer Page](screenshots/Timerpage.png)
+![Timer Page](screenshots/Timepage.png)
 
 ### Statistics
 
