@@ -31,9 +31,9 @@ app.get("/health", (_req, res) => {
   res.json({ ok: true });
 });
 
-app.use("/api/users", verifyToken, userRoutes);
-app.use("/api/statistics", verifyToken, statisticsRoutes);
-app.use("/api/protected", verifyToken, protectedRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/statistics", statisticsRoutes);
+app.use("/api/protected", protectedRoutes);
 app.use("/api/games", gameRoutes);
 app.use("/api/sessions", sessionRoutes);
 app.use("/api/weather", weatherRoutes);

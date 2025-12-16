@@ -27,39 +27,43 @@ const AdminLoginPage: React.FC = () => {
 }
 
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setError("");
+async function handleSubmit(e: React.FormEvent) {
+  e.preventDefault();
+  setError("");
 
-    try {
-      setLoading(true);
-      const cred = await signInWithEmailAndPassword(auth, email, password);
+  try {
+    setLoading(true);
+    const cred = await signInWithEmailAndPassword(auth, email, password);
 
-      // simple admin check – you can later make this role-based from backend
-      const isAdminEmail = email.endsWith("@admin.com");
-      if (!isAdminEmail) {
-        throw new Error("You are not authorized as admin.");
-      }
-const storage = rememberMe ? localStorage : sessionStorage;
+    const isAdminEmail = email.endsWith("@admin.com");
+    if (!isAdminEmail) throw new Error("You are not authorized as admin.");
 
-// clear the other storage so admin doesn't "stick" accidentally
-localStorage.removeItem("isAdmin");
-localStorage.removeItem("adminEmail");
-sessionStorage.removeItem("isAdmin");
-sessionStorage.removeItem("adminEmail");
+    const token = await cred.user.getIdToken();
+    const storage = rememberMe ? localStorage : sessionStorage;
 
-storage.setItem("isAdmin", "true");
-storage.setItem("adminEmail", cred.user.email || email);
+    // clear BOTH storages so nothing "sticks"
+    localStorage.removeItem("token");
+    localStorage.removeItem("isAdmin");
+    localStorage.removeItem("adminEmail");
 
+    sessionStorage.removeItem("token");
+    sessionStorage.removeItem("isAdmin");
+    sessionStorage.removeItem("adminEmail");
 
-      navigate("/admin", { replace: true }); // go to admin menu
-    } catch (err: any) {
-      console.error(err);
-      setError(err?.message || "Could not sign in as admin.");
-    } finally {
-      setLoading(false);
-    }
+    // store in the chosen one
+    storage.setItem("token", token);
+    storage.setItem("isAdmin", "true");
+    storage.setItem("adminEmail", cred.user.email || email);
+
+    navigate("/admin", { replace: true });
+  } catch (err: any) {
+    console.error(err);
+    setError(err?.message || "Could not sign in as admin.");
+  } finally {
+    setLoading(false);
   }
+}
+
 
  return (
   <div className="min-h-screen flex flex-col bg-slate-900 text-slate-50">

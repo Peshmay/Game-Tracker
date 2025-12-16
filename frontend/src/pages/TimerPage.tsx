@@ -21,7 +21,31 @@ export default function TimerPage() {
   const [simMinutes, setSimMinutes] = useState(0);
   const [sessionId, setSessionId] = useState<number | null>(null);
   const [isStopping, setIsStopping] = useState(false);
+
+  // ✅ NEW
+  const [isPaused, setIsPaused] = useState(false);
+
   const tickRef = useRef<number | null>(null);
+
+  // ✅ NEW: central helper to start ticking
+  function startTick() {
+    if (tickRef.current) window.clearInterval(tickRef.current);
+    tickRef.current = window.setInterval(() => {
+      setSimMinutes((m) => m + 1);
+    }, 1000);
+  }
+
+  // ✅ NEW
+  function pause() {
+    if (tickRef.current) window.clearInterval(tickRef.current);
+    setIsPaused(true);
+  }
+
+  // ✅ NEW
+  function resume() {
+    startTick();
+    setIsPaused(false);
+  }
 
   // Guard: if state is missing, go back
   useEffect(() => {
@@ -46,13 +70,13 @@ export default function TimerPage() {
 
         setSessionId(data.id);
 
-        // 1 second = 1 minute (demo)
-        tickRef.current = window.setInterval(() => setSimMinutes((m) => m + 1), 1000);
+        // ✅ replace interval setup with helper
+        startTick();
       } catch (err) {
         console.error("Failed to start session:", err);
 
         // Fallback: still show timer even if backend fails
-        tickRef.current = window.setInterval(() => setSimMinutes((m) => m + 1), 1000);
+        startTick();
         setSessionId(-1);
       }
     })();
@@ -61,6 +85,7 @@ export default function TimerPage() {
       alive = false;
       if (tickRef.current) window.clearInterval(tickRef.current);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state]);
 
   const timeLabel = useMemo(() => {
@@ -90,6 +115,7 @@ export default function TimerPage() {
 
     if (tickRef.current) window.clearInterval(tickRef.current);
     setIsStopping(true);
+    setIsPaused(false);
 
     if (sessionId != null && sessionId !== -1) {
       try {
@@ -99,7 +125,6 @@ export default function TimerPage() {
       }
     }
 
-    // small UX pause then go back
     setTimeout(() => navigate("/play", { replace: true }), 700);
   }
 
@@ -150,9 +175,7 @@ export default function TimerPage() {
           </div>
 
           {/* Game name */}
-          <div className="text-slate-100 font-semibold text-lg mb-8">
-            {state.game.name}
-          </div>
+          <div className="text-slate-100 font-semibold text-lg mb-8">{state.game.name}</div>
 
           {/* Timer pill */}
           <div className="w-full max-w-xl bg-white rounded-2xl shadow-2xl px-6 py-5 flex items-center justify-center gap-6">
@@ -166,6 +189,7 @@ export default function TimerPage() {
 
           {/* Buttons */}
           <div className="mt-10 w-full max-w-xs flex flex-col gap-4">
+            {/* STOP */}
             <button
               onClick={stop}
               disabled={isStopping}
@@ -186,6 +210,23 @@ export default function TimerPage() {
               )}
             </button>
 
+            {/* ✅ NEW: PAUSE / RESUME */}
+            <button
+              type="button"
+              onClick={isPaused ? resume : pause}
+              disabled={isStopping}
+              className={
+                "w-full py-3 rounded-xl text-lg font-bold border-2 transition " +
+                (isPaused
+                  ? "border-emerald-400 text-emerald-200 hover:bg-emerald-500/10"
+                  : "border-yellow-400 text-yellow-200 hover:bg-yellow-500/10") +
+                " disabled:opacity-50"
+              }
+            >
+              {isPaused ? "RESUME" : "PAUSE"}
+            </button>
+
+            {/* EXIT */}
             <button
               onClick={exit}
               disabled={isStopping}

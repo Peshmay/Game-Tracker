@@ -9,6 +9,7 @@ import WeatherWidget from "../components/WeatherWidget";
 import AppShell from "../components/layout/AppShell";
 import { ArrowLeft } from "lucide-react";
 import { requireAdmin } from "../utils/requireAdmin"; // ✅ NEW
+import { getToken } from "../utils/getToken";
 
 export default function UsersPage() {
   const [users, setUsers] = useState<any[]>([]);

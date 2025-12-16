@@ -8,10 +8,15 @@ export default function AdminMenuPage() {
   const navigate = useNavigate();
 
   // ACCESS GUARD
-  useEffect(() => {
-    const isAdmin = localStorage.getItem("isAdmin") === "true";
-    if (!isAdmin) navigate("/admin-login", { replace: true });
-  }, [navigate]);
+ useEffect(() => {
+  const isAdmin =
+    localStorage.getItem("isAdmin") === "true" ||
+    sessionStorage.getItem("isAdmin") === "true";
+
+  if (!isAdmin) {
+    navigate("/admin-login", { replace: true });
+  }
+}, [navigate]);
 
   return (
     <AdminShell>

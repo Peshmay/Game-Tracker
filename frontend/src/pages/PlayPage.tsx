@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { getAvatarForUser } from "../utils/avatars";
 import AppShell from "../components/layout/AppShell";
 import { ArrowLeft } from "lucide-react";
+import { getToken } from "../utils/getToken";
 
 export default function PlayPage() {
   const [users, setUsers] = useState<any[]>([]);
@@ -20,13 +21,17 @@ const me = JSON.parse(localStorage.getItem("user") || "null"); // { email, uid, 
 
  useEffect(() => {
   (async () => {
-    const usersRes = await axios.get("http://localhost:4000/api/users");
-    const gamesRes = await axios.get("http://localhost:4000/api/games");
+    const token = getToken();
+    const headers = { Authorization: `Bearer ${token}` };
+
+    const [usersRes, gamesRes] = await Promise.all([
+      axios.get("http://localhost:4000/api/users", { headers }),
+      axios.get("http://localhost:4000/api/games"), // games not protected
+    ]);
 
     setUsers(usersRes.data);
     setGames(gamesRes.data);
 
-    // ✅ If normal user: auto-pick their userId by matching email
     if (!isAdmin && me?.email) {
       const found = usersRes.data.find((u: any) => u.email === me.email);
       if (found) setUserId(found.id);
