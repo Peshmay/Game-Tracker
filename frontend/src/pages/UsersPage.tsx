@@ -10,6 +10,7 @@ import AppShell from "../components/layout/AppShell";
 import { ArrowLeft } from "lucide-react";
 import { requireAdmin } from "../utils/requireAdmin"; // ✅ NEW
 import { getToken } from "../utils/getToken";
+import { api } from "../lib/api";
 
 export default function UsersPage() {
   const [users, setUsers] = useState<any[]>([]);
@@ -22,15 +23,17 @@ export default function UsersPage() {
   }, []);
 
   async function fetchUsers() {
-    const res = await axios.get("http://localhost:4000/api/users");
-    setUsers(res.data);
-  }
+  const res = await api.get("/api/users");
+  setUsers(res.data);
+}
 
-  async function handleDelete(id: number) {
-    if (!confirm("Delete this user? This cannot be undone.")) return;
-    await axios.delete(`http://localhost:4000/api/users/${id}`);
-    fetchUsers();
-  }
+async function handleDelete(id: number) {
+  if (!confirm("Delete this user? This cannot be undone.")) return;
+
+  const token = getToken();
+ await api.delete(`/api/users/${id}`);
+fetchUsers();
+}
 
   function picSrc(u: any) {
     if (u.profilePic?.startsWith("/avatars")) return u.profilePic;

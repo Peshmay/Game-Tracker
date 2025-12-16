@@ -17,6 +17,7 @@ import {
 import AppShell from "../components/layout/AppShell";
 import { ArrowLeft, TrendingUp, Users, Clock, Trophy, Gamepad2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { api } from "../lib/api";
 
 // Dark-mode tooltip that looks good on your UI
 function CustomTooltip({ active, payload, label }: any) {
@@ -75,17 +76,17 @@ export default function StatisticsPage() {
   const navigate = useNavigate();
   const [stats, setStats] = useState<any>(null);
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const res = await axios.get("http://localhost:4000/api/statistics");
-        setStats(res.data);
-      } catch (e) {
-        console.error("Failed to fetch statistics:", e);
-        setStats({ games: [], users: [], week: [], leaderboard: [] });
-      }
-    })();
-  }, []);
+ useEffect(() => {
+  (async () => {
+    try {
+      const res = await api.get("/api/statistics");
+      setStats(res.data);
+    } catch (e) {
+      console.error("Failed to fetch statistics:", e);
+      setStats({ games: [], users: [], week: [], leaderboard: [] });
+    }
+  })();
+}, []);
 
   if (!stats) {
     return (

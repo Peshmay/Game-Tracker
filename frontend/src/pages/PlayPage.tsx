@@ -1,12 +1,11 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
 import genres from "../assets/genres";
 import GameCard from "../components/GameCard";
 import { useNavigate } from "react-router-dom";
 import { getAvatarForUser } from "../utils/avatars";
 import AppShell from "../components/layout/AppShell";
 import { ArrowLeft } from "lucide-react";
-import { getToken } from "../utils/getToken";
+import { api } from "../lib/api";
 
 export default function PlayPage() {
   const [users, setUsers] = useState<any[]>([]);
@@ -19,14 +18,11 @@ export default function PlayPage() {
 const isAdmin = localStorage.getItem("isAdmin") === "true";
 const me = JSON.parse(localStorage.getItem("user") || "null"); // { email, uid, ... }
 
- useEffect(() => {
+useEffect(() => {
   (async () => {
-    const token = getToken();
-    const headers = { Authorization: `Bearer ${token}` };
-
     const [usersRes, gamesRes] = await Promise.all([
-      axios.get("http://localhost:4000/api/users", { headers }),
-      axios.get("http://localhost:4000/api/games"), // games not protected
+      api.get("/api/users"),
+      api.get("/api/games"),
     ]);
 
     setUsers(usersRes.data);
@@ -37,7 +33,7 @@ const me = JSON.parse(localStorage.getItem("user") || "null"); // { email, uid, 
       if (found) setUserId(found.id);
     }
   })();
-}, []);
+}, [isAdmin, me?.email]);
 
 
   function start() {
@@ -48,9 +44,10 @@ const me = JSON.parse(localStorage.getItem("user") || "null"); // { email, uid, 
     const user = users.find((u) => u.id === userId);
     const game = games.find((g) => g.id === gameId);
     if (!user || !game) return;
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
 
-    const avatar = user.profilePic?.startsWith("/uploads")
-      ? `http://localhost:4000${user.profilePic}`
+const avatar = user.profilePic?.startsWith("/uploads")
+  ? `${API_URL}${user.profilePic}`
       : user.profilePic || getAvatarForUser(user.id);
 
     navigate("/play/timer", { state: { user, game, avatar } });

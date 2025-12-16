@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
+import { api } from "../lib/api";
 
 type Stat = { game: string; minutes: number; percent: number };
 
@@ -10,11 +10,12 @@ export default function UserDetailsPage() {
   const [user, setUser] = useState<any>(null);
   const [stats, setStats] = useState<Stat[]>([]);
 
-  useEffect(() => {
-    (async () => {
-      const res = await axios.get(`http://localhost:4000/api/users/${id}`);
-      setUser(res.data);
-      const sessions = res.data.sessions || [];
+ useEffect(() => {
+  (async () => {
+    const res = await api.get(`/api/users/${id}`);
+    setUser(res.data);
+
+    const sessions = res.data.sessions || [];
       const totals: Record<string, number> = {};
       let totalMinutes = 0;
 

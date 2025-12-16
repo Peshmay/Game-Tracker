@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import AppShell from "../components/layout/AppShell";
 import { Gamepad2, UserCircle, CheckCircle } from "lucide-react";
+import { api } from "../lib/api";
 
 type TimerState = {
   user: any;
@@ -62,7 +63,7 @@ export default function TimerPage() {
 
     (async () => {
       try {
-        const { data } = await axios.post("http://localhost:4000/api/sessions/start", {
+        const { data } = await api.post("/api/sessions/start", {
           userId: state.user.id,
           gameId: state.game.id,
         });
@@ -119,7 +120,7 @@ export default function TimerPage() {
 
     if (sessionId != null && sessionId !== -1) {
       try {
-        await axios.patch("http://localhost:4000/api/sessions/stop", { id: sessionId });
+        await api.patch("/api/sessions/stop", { id: sessionId });
       } catch (err) {
         console.error("Failed to stop session:", err);
       }

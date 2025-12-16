@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import { api } from "../lib/api";
 
 type Weather = {
   city: string;
@@ -10,16 +10,18 @@ type Weather = {
 export default function WeatherWidget() {
   const [weather, setWeather] = useState<Weather | null>(null);
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const res = await axios.get("/api/weather?city=Uddevalla");
-        setWeather(res.data);
-      } catch (err) {
-        console.error("Weather error", err);
-      }
-    })();
-  }, []);
+ useEffect(() => {
+  (async () => {
+    try {
+      const res = await api.get("/api/weather", {
+        params: { city: "Uddevalla" },
+      });
+      setWeather(res.data);
+    } catch (err) {
+      console.error("Weather error", err);
+    }
+  })();
+}, []);
 
   if (!weather) return null;
 
